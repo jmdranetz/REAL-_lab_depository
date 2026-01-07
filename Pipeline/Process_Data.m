@@ -130,8 +130,8 @@ if  EMGFlag
     %sorting
     EMG_header=string(sort(Analog_header(Indx)));
     S_one=strncmpi(EMG_header,'Sensor_1_',9);
-    EMG_header_s=EMG_header(find(S_one):end,:);
-    EMG_header_s=[EMG_header_s;EMG_header(1:find(S_one)-1,:)];
+    EMG_header_s=EMG_header(find(S_one,1):end,:);
+    EMG_header_s=[EMG_header_s;EMG_header(1:find(S_one,1)-1,:)];
     for k=1:length(EMG_header_s)
         EMGdata(:,k)=data.analog_data.Channels.(EMG_header_s(k));
     end
