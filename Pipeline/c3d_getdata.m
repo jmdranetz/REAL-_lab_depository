@@ -57,8 +57,11 @@ marker_data.Markers = markers;
 
 % convert data to millimeters if in meters - catch if units have been screwed with
 fnames = fieldnames(markers);
-if mean(markers.(fnames{1})(:,1))<2 && mean(markers.(fnames{1})(:,2))<2 && mean(markers.(fnames{1})(:,3))<2
-   m_mm = 1;
+if ~isempty(fnames)
+    if mean(markers.(fnames{1})(:,1))<2 && mean(markers.(fnames{1})(:,2))<2 && mean(markers.(fnames{1})(:,3))<2
+        m_mm = 1;
+    else m_mm = 0;
+    end
 else m_mm = 0;
 end
 
