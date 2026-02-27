@@ -40,54 +40,26 @@ for i=1:length(ForceplateNum)
 end
 %%%
 if ForceFlag
-    if length(data.fp_data.FP_data)==5
-        if ForceplateNum(1)==1
-            if strcmp(data.fp_data.Info(1).units.Moment_Mx1,'Nmm')
-                p_sc = 1000;
-            else
-                p_sc = 1;
-            end
-        elseif ForceplateNum(1)==2
-            if strcmp(data.fp_data.Info(2).units.Moment_Mx2,'Nmm')
-                p_sc = 1000;
-            else
-                p_sc = 1;
-            end
-        elseif ForceplateNum(1)==3
-            if strcmp(data.fp_data.Info(3).units.Moment_Mx3,'Nmm')
-                p_sc = 1000;
-            else
-                p_sc = 1;
-            end
-        elseif ForceplateNum(1)==4
-            if strcmp(data.fp_data.Info(4).units.Moment_Mx4,'Nmm')
-                p_sc = 1000;
-            else
-                p_sc = 1;
-            end
-        elseif ForceplateNum(1)==5
-            if strcmp(data.fp_data.Info(5).units.Moment_Mx5,'Nmm')
-                p_sc = 1000;
-            else
-                p_sc = 1;
-            end
-        end
-    elseif length(data.fp_data.FP_data)==3
-        if strcmp(data.fp_data.Info(1).units.Moment_Mx1,'Nmm')
-            p_sc = 1000;
-            %     data.fp_data.Info(:).units.Moment_Mx1 = 'Nm';
-        else
-            p_sc = 1;
-        end
-    elseif length(data.fp_data.FP_data)==2
-        if strcmp(data.fp_data.Info(1).units.Moment_Mx4,'Nmm')
-            p_sc = 1000;
-            %     data.fp_data.Info(:).units.Moment_Mx1 = 'Nm';
-        else
-            p_sc = 1;
-        end
+    consistentcheck=zeros([1 length(data.fp_data.FP_data)]); %Checks units of moment
+    for i=1:length(data.fp_data.FP_data)
+        a=struct2cell(data.fp_data.Info(i).units);
+        if strcmp(a{4},'Nmm')
+            consistentcheck(i)=1;
+        elseif strcmp(a{4},'Nm')
+            consistentcheck(i)=2;
+        end 
     end
-        
+    if sum(consistentcheck)/length(data.fp_data.FP_data) == 1 %all plates have Nmm
+        p_sc = 1000;
+    elseif sum(consistentcheck)/length(data.fp_data.FP_data) == 2 %all plates have Nm
+        p_sc = 1;
+    else
+        p_sc = 1; %Hard coded 1 if Nm or 1000 if Nmm (Alter this if check fails)
+        warning('Unrecognized or Inconsistent Force Plate Units') %But wanrs
+        for i=1:length(data.fp_data.FP_data) %And show user all the plates units
+            data.fp_data.Info(i).units
+        end
+    end        
     fp_Number=ForceplateNum;
     GRFdata =data.fp_data.Time;
     for i = 1:length(fp_Number)
@@ -109,7 +81,7 @@ if ForceFlag
                 tempgrf=[GRFdata(:,1) GRFdata(:,11:19) GRFdata(:,2:10)];
                 GRFdata=tempgrf;
             end
-            sGRFdata=TM_SeparateGRFs(MarkerData,GRFdata,Markerset);
+            sGRFdata=TM_SeparateGRF(MarkerData,GRFdata,Markerset);
             data.fp_data.Info(1).fp_Number=[4,5];
         case 1
             sGRFdata=OG_SeparateGRF(MarkerData,GRFdata,Markerset,ForceplateNum,ForcePlate);
